@@ -147,7 +147,8 @@ buildUtil.DojoBuildOptions = {
 	"expandProvide": {
 		defaultValue: false,
 		helpText: "Expands dojo.provide calls with faster calls at the expense of a larger file size. Only use the option "
-			+ "if your profiling reveals that dojo.provide calls are taking a noticeable amount of time. It replaces "
+			+ "if your profiling reveals that dojo.provide calls are taking a noticeable amount of time. Even then, it could "
+			+ "cause errors in the built files. If you find an error after building, turn this option off. It replaces "
 			+ "dojo.provide(\"foo.bar\") statements with the shortest valid programmatic equivalent:\n"
 			+ "if(typeof foo==\"undefined\"){foo={};};foo.bar=foo.bar||{};\nIgnored for xdomain builds."
 	},
@@ -161,6 +162,12 @@ buildUtil.DojoBuildOptions = {
 		defaultValue: "default",
 		helpText: "Select a DOM query engine. Default value is the normal dojo.query engine. Using query=sizzle will use the Sizzle engine."
 			+ "Normal Dojo tests are not run routinely with the Sizzle engine. See dojo/_base/sizzle.js for the version of Sizzle."
+	},
+	"removeDefaultNameSpaces": {
+		defaultValue: false,
+		helpText: "Removes the default 'com', 'org' and 'net' namespaces that are present in Rhino. This is hazardous to use if "
+			+ "the build system is used as part of a Rhino-based server-side solution, so use with caution. Weird build errors "
+			+ "might occur. Only use if your own code includes things in a com, org or net namespace."
 	}
 };
 
@@ -241,6 +248,10 @@ buildUtil.makeBuildOptions = function(/*Array*/scriptArgs){
 		logger.info("NOTE: stripConsole is only supported for an layerOptimize=shrinksafe value.");
 	}
 
+	//Validate some values.
+	if(typeof kwArgs.scopeDjConfig != "string") {
+		throw "Due to deficiencies in the build system, scopeDjConfig needs to be a string.";
+	}
 	return kwArgs;
 }
 
